@@ -1,4 +1,17 @@
 import { useState } from "react";
+import { events } from "./eventsData";
+
+const COLORS = {
+  good: { bg: "#d4edda", border: "#28a745", text: "#155724" },
+  normal: { bg: "#fff3cd", border: "#ffc107", text: "#856404" },
+  bad: { bg: "#f8d7da", border: "#dc3545", text: "#721c24" },
+};
+
+const OUTCOME_LABEL = {
+  good: "✅ 成功",
+  normal: "⚠️ まあまあ",
+  bad: "❌ 失敗",
+};
 
 export default function HigherRunner() {
   const [gamePhase, setGamePhase] = useState("input"); // input, playing, finished
@@ -6,8 +19,14 @@ export default function HigherRunner() {
     raceName: "",
     raceDate: "",
     level: "", // beginner, experienced, time-attack
-    goalTime: ""
+    goalTime: "",
   });
+
+  const [currentEventId, setCurrentEventId] = useState("F1");
+  const [selectedChoice, setSelectedChoice] = useState(null); // "A" | "B" | "C"
+  const [showResult, setShowResult] = useState(false);
+
+  const EVENT_ORDER = ["F1", "F2", "F3", "F10", "F22", "F24"];
 
   const handleStart = () => {
     if (!formData.raceName || !formData.raceDate || !formData.level) {
@@ -18,10 +37,37 @@ export default function HigherRunner() {
       alert("目標タイムを入力してください");
       return;
     }
+    setCurrentEventId("F1");
+    setSelectedChoice(null);
+    setShowResult(false);
     setGamePhase("playing");
   };
 
+  const handleChoiceSelect = (choiceId) => {
+    if (showResult) return;
+    setSelectedChoice(choiceId);
+  };
+
+  const handleDecide = () => {
+    if (!selectedChoice) return;
+    setShowResult(true);
+  };
+
+  const handleNextEvent = () => {
+    const currentIndex = EVENT_ORDER.indexOf(currentEventId);
+    const nextId = EVENT_ORDER[currentIndex + 1];
+    if (nextId && events[nextId]) {
+      setCurrentEventId(nextId);
+      setSelectedChoice(null);
+      setShowResult(false);
+    } else {
+      alert(`F${currentIndex + 2} Coming Soon... 🚧`);
+    }
+  };
+
+  // ─────────────────────────────────────────
   // 入力フェーズ
+  // ─────────────────────────────────────────
   if (gamePhase === "input") {
     return (
       <div style={{
@@ -30,7 +76,7 @@ export default function HigherRunner() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "20px"
+        padding: "20px",
       }}>
         <div style={{
           maxWidth: "500px",
@@ -38,7 +84,7 @@ export default function HigherRunner() {
           background: "rgba(255, 255, 255, 0.95)",
           borderRadius: "20px",
           padding: "40px",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
+          boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
         }}>
           {/* ヘッダー */}
           <div style={{ textAlign: "center", marginBottom: "30px" }}>
@@ -49,13 +95,11 @@ export default function HigherRunner() {
               background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
-              marginBottom: "8px"
+              marginBottom: "8px",
             }}>
               Higher Runner
             </h1>
-            <p style={{ color: "#666", fontSize: "14px" }}>
-              フルマラソン完走への道
-            </p>
+            <p style={{ color: "#666", fontSize: "14px" }}>フルマラソン完走への道</p>
             <p style={{ color: "#999", fontSize: "12px", marginTop: "8px", fontStyle: "italic" }}>
               "Bring me a higher run..."
             </p>
@@ -72,7 +116,7 @@ export default function HigherRunner() {
                 type="text"
                 placeholder="例：東京マラソン2026"
                 value={formData.raceName}
-                onChange={(e) => setFormData({...formData, raceName: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, raceName: e.target.value })}
                 style={{
                   width: "100%",
                   padding: "12px 16px",
@@ -80,10 +124,10 @@ export default function HigherRunner() {
                   border: "2px solid #e0e0e0",
                   borderRadius: "10px",
                   outline: "none",
-                  transition: "all 0.3s"
+                  transition: "all 0.3s",
                 }}
-                onFocus={(e) => e.target.style.borderColor = "#667eea"}
-                onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
+                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
+                onBlur={(e) => (e.target.style.borderColor = "#e0e0e0")}
               />
             </div>
 
@@ -95,7 +139,7 @@ export default function HigherRunner() {
               <input
                 type="date"
                 value={formData.raceDate}
-                onChange={(e) => setFormData({...formData, raceDate: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, raceDate: e.target.value })}
                 style={{
                   width: "100%",
                   padding: "12px 16px",
@@ -103,10 +147,10 @@ export default function HigherRunner() {
                   border: "2px solid #e0e0e0",
                   borderRadius: "10px",
                   outline: "none",
-                  transition: "all 0.3s"
+                  transition: "all 0.3s",
                 }}
-                onFocus={(e) => e.target.style.borderColor = "#667eea"}
-                onBlur={(e) => e.target.style.borderColor = "#e0e0e0"}
+                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
+                onBlur={(e) => (e.target.style.borderColor = "#e0e0e0")}
               />
             </div>
 
@@ -119,11 +163,11 @@ export default function HigherRunner() {
                 {[
                   { value: "beginner", icon: "🔰", label: "初心者", desc: "初フルマラソン" },
                   { value: "experienced", icon: "🏃", label: "完走経験者", desc: "タイムより完走重視" },
-                  { value: "time-attack", icon: "⚡", label: "タイムを狙う", desc: "目標タイムがある" }
+                  { value: "time-attack", icon: "⚡", label: "タイムを狙う", desc: "目標タイムがある" },
                 ].map((level) => (
                   <button
                     key={level.value}
-                    onClick={() => setFormData({...formData, level: level.value})}
+                    onClick={() => setFormData({ ...formData, level: level.value })}
                     style={{
                       padding: "16px",
                       border: formData.level === level.value ? "3px solid #667eea" : "2px solid #e0e0e0",
@@ -134,7 +178,7 @@ export default function HigherRunner() {
                       transition: "all 0.3s",
                       display: "flex",
                       alignItems: "center",
-                      gap: "12px"
+                      gap: "12px",
                     }}
                     onMouseOver={(e) => {
                       if (formData.level !== level.value) {
@@ -167,7 +211,7 @@ export default function HigherRunner() {
                 </label>
                 <select
                   value={formData.goalTime}
-                  onChange={(e) => setFormData({...formData, goalTime: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, goalTime: e.target.value })}
                   style={{
                     width: "100%",
                     padding: "12px 16px",
@@ -175,7 +219,7 @@ export default function HigherRunner() {
                     border: "2px solid #e0e0e0",
                     borderRadius: "10px",
                     outline: "none",
-                    cursor: "pointer"
+                    cursor: "pointer",
                   }}
                 >
                   <option value="">選択してください</option>
@@ -203,7 +247,7 @@ export default function HigherRunner() {
                 borderRadius: "12px",
                 cursor: "pointer",
                 transition: "all 0.3s",
-                boxShadow: "0 4px 15px rgba(102, 126, 234, 0.4)"
+                boxShadow: "0 4px 15px rgba(102, 126, 234, 0.4)",
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.transform = "translateY(-2px)";
@@ -227,52 +271,273 @@ export default function HigherRunner() {
     );
   }
 
-  // ゲームプレイ中（仮画面）
+  // ─────────────────────────────────────────
+  // イベント画面（playing フェーズ）
+  // ─────────────────────────────────────────
   if (gamePhase === "playing") {
+    const eventData = events[currentEventId];
+    const levelData = eventData.levels[formData.level];
+    const chosen = levelData.choices.find((c) => c.id === selectedChoice);
+    const resultColor = chosen ? COLORS[chosen.result.outcome] : null;
+
     return (
       <div style={{
         minHeight: "100vh",
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         padding: "20px",
-        color: "white"
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
       }}>
-        <div style={{ textAlign: "center", maxWidth: "600px" }}>
-          <div style={{ fontSize: "64px", marginBottom: "20px" }}>🎵</div>
-          <h1 style={{ fontSize: "36px", marginBottom: "20px" }}>Coming Soon...</h1>
+        <div style={{
+          maxWidth: "600px",
+          width: "100%",
+          marginTop: "40px",
+          marginBottom: "40px",
+        }}>
+
+          {/* 上部バー */}
           <div style={{
-            background: "rgba(255,255,255,0.2)",
-            padding: "20px",
-            borderRadius: "12px",
-            marginBottom: "20px"
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "20px",
           }}>
-            <p style={{ fontSize: "18px", marginBottom: "10px" }}>入力された情報：</p>
-            <p>🏁 {formData.raceName}</p>
-            <p>📅 {formData.raceDate}</p>
-            <p>🎯 {
-              formData.level === "beginner" ? "🔰 初心者" :
-              formData.level === "experienced" ? "🏃 完走経験者" :
-              "⚡ タイムを狙う"
-            }</p>
-            {formData.goalTime && <p>⏱️ {formData.goalTime}</p>}
+            <span style={{ color: "rgba(255,255,255,0.8)", fontSize: "13px" }}>
+              🏁 {formData.raceName}
+            </span>
+            <button
+              onClick={() => setGamePhase("input")}
+              style={{
+                background: "rgba(255,255,255,0.2)",
+                border: "none",
+                borderRadius: "8px",
+                color: "white",
+                padding: "6px 14px",
+                fontSize: "13px",
+                cursor: "pointer",
+              }}
+            >
+              ← 最初に戻る
+            </button>
           </div>
-          <button
-            onClick={() => setGamePhase("input")}
-            style={{
-              padding: "12px 24px",
-              fontSize: "16px",
-              color: "#667eea",
-              background: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "bold"
-            }}
-          >
-            ← 入力画面に戻る
-          </button>
+
+          {/* イベントカード */}
+          <div style={{
+            background: "rgba(255,255,255,0.97)",
+            borderRadius: "20px",
+            padding: "32px",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+          }}>
+
+            {/* イベントタイトル */}
+            <div style={{ marginBottom: "20px" }}>
+              <span style={{
+                display: "inline-block",
+                background: "linear-gradient(135deg, #667eea, #764ba2)",
+                color: "white",
+                fontSize: "11px",
+                fontWeight: "bold",
+                padding: "4px 10px",
+                borderRadius: "20px",
+                marginBottom: "10px",
+                letterSpacing: "0.5px",
+              }}>
+                {eventData.phase}
+              </span>
+              <h2 style={{ fontSize: "22px", fontWeight: "bold", color: "#222", margin: 0 }}>
+                {eventData.title}
+              </h2>
+            </div>
+
+            {/* 状況説明 */}
+            <div style={{
+              background: "#f8f9ff",
+              borderLeft: "4px solid #667eea",
+              borderRadius: "0 10px 10px 0",
+              padding: "16px",
+              marginBottom: "24px",
+              fontSize: "15px",
+              color: "#444",
+              lineHeight: "1.7",
+              whiteSpace: "pre-line",
+            }}>
+              {levelData.description}
+            </div>
+
+            {/* 選択肢 */}
+            <div style={{ marginBottom: "20px" }}>
+              <p style={{ fontSize: "13px", fontWeight: "bold", color: "#888", marginBottom: "12px" }}>
+                どうする？
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {levelData.choices.map((choice) => {
+                  const isSelected = selectedChoice === choice.id;
+                  const isDecided = showResult;
+                  const isWinner = isDecided && isSelected;
+
+                  let borderColor = "#e0e0e0";
+                  let bgColor = "white";
+                  if (isSelected && !isDecided) { borderColor = "#667eea"; bgColor = "rgba(102,126,234,0.08)"; }
+                  if (isWinner) { borderColor = resultColor.border; bgColor = resultColor.bg; }
+                  if (isDecided && !isSelected) { bgColor = "#f5f5f5"; }
+
+                  return (
+                    <button
+                      key={choice.id}
+                      onClick={() => handleChoiceSelect(choice.id)}
+                      disabled={isDecided}
+                      style={{
+                        padding: "14px 16px",
+                        border: `2px solid ${borderColor}`,
+                        borderRadius: "12px",
+                        background: bgColor,
+                        cursor: isDecided ? "default" : "pointer",
+                        textAlign: "left",
+                        fontSize: "15px",
+                        color: isDecided && !isSelected ? "#aaa" : "#333",
+                        transition: "all 0.2s",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                      }}
+                    >
+                      <span style={{
+                        width: "28px",
+                        height: "28px",
+                        borderRadius: "50%",
+                        background: isSelected ? "#667eea" : "#eee",
+                        color: isSelected ? "white" : "#888",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "13px",
+                        fontWeight: "bold",
+                        flexShrink: 0,
+                      }}>
+                        {choice.id}
+                      </span>
+                      {choice.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 決定ボタン */}
+            {!showResult && (
+              <button
+                onClick={handleDecide}
+                disabled={!selectedChoice}
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  color: "white",
+                  background: selectedChoice
+                    ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                    : "#ccc",
+                  border: "none",
+                  borderRadius: "12px",
+                  cursor: selectedChoice ? "pointer" : "not-allowed",
+                  transition: "all 0.3s",
+                  marginBottom: "8px",
+                }}
+              >
+                これで決定！
+              </button>
+            )}
+
+            {/* 結果表示 */}
+            {showResult && chosen && (
+              <div style={{ marginTop: "8px" }}>
+                {/* アウトカムラベル */}
+                <div style={{
+                  display: "inline-block",
+                  background: resultColor.bg,
+                  border: `2px solid ${resultColor.border}`,
+                  color: resultColor.text,
+                  padding: "6px 16px",
+                  borderRadius: "20px",
+                  fontWeight: "bold",
+                  fontSize: "14px",
+                  marginBottom: "14px",
+                }}>
+                  {OUTCOME_LABEL[chosen.result.outcome]}
+                </div>
+
+                {/* 結果テキスト */}
+                <div style={{
+                  background: resultColor.bg,
+                  border: `1px solid ${resultColor.border}`,
+                  borderRadius: "12px",
+                  padding: "16px",
+                  marginBottom: "14px",
+                  fontSize: "15px",
+                  color: "#333",
+                  lineHeight: "1.7",
+                  whiteSpace: "pre-line",
+                }}>
+                  {chosen.result.text}
+                </div>
+
+                {/* Tips */}
+                <div style={{
+                  background: "#fffbea",
+                  border: "1px solid #f0c040",
+                  borderRadius: "12px",
+                  padding: "14px 16px",
+                  marginBottom: "14px",
+                  fontSize: "13px",
+                  color: "#6b5900",
+                  lineHeight: "1.6",
+                }}>
+                  💡 <strong>Tips：</strong>{chosen.tip}
+                </div>
+
+                {/* 教育コンテンツ */}
+                <div style={{
+                  background: "#f0f4ff",
+                  border: "1px solid #c5d0f5",
+                  borderRadius: "12px",
+                  padding: "16px",
+                  marginBottom: "24px",
+                  fontSize: "13px",
+                  color: "#334",
+                  lineHeight: "1.8",
+                  whiteSpace: "pre-line",
+                }}>
+                  {levelData.educationContent}
+                </div>
+
+                {/* 次へボタン */}
+                <button
+                  onClick={handleNextEvent}
+                  style={{
+                    width: "100%",
+                    padding: "14px",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    color: "white",
+                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    border: "none",
+                    borderRadius: "12px",
+                    cursor: "pointer",
+                    boxShadow: "0 4px 15px rgba(102,126,234,0.4)",
+                  }}
+                >
+                  {(() => {
+                    const nextIndex = EVENT_ORDER.indexOf(currentEventId) + 1;
+                    const nextId = EVENT_ORDER[nextIndex];
+                    return nextId && events[nextId]
+                      ? `次のイベントへ → ${nextId} 🏃`
+                      : `次のイベントへ → F${nextIndex + 1} Coming Soon 🚧`;
+                  })()}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
