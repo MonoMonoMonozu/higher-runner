@@ -26,11 +26,11 @@ export default function HigherRunner() {
   const [selectedChoice, setSelectedChoice] = useState(null); // "A" | "B" | "C"
   const [showResult, setShowResult] = useState(false);
 
-  const EVENT_ORDER = ["F1", "F2", "F3", "F10", "F22", "F24"];
+  const EVENT_ORDER = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "F21", "F22", "F23", "F24", "F25", "F26"];
 
   const handleStart = () => {
-    if (!formData.raceName || !formData.raceDate || !formData.level) {
-      alert("大会名、開催日、レベルを入力してください");
+    if (!formData.level) {
+      alert("レベルを選択してください");
       return;
     }
     if (formData.level === "time-attack" && !formData.goalTime) {
@@ -61,7 +61,17 @@ export default function HigherRunner() {
       setSelectedChoice(null);
       setShowResult(false);
     } else {
-      alert(`F${currentIndex + 2} Coming Soon... 🚧`);
+      setGamePhase("finished");
+    }
+  };
+
+  const handlePrevEvent = () => {
+    const currentIndex = EVENT_ORDER.indexOf(currentEventId);
+    const prevId = EVENT_ORDER[currentIndex - 1];
+    if (prevId && events[prevId]) {
+      setCurrentEventId(prevId);
+      setSelectedChoice(null);
+      setShowResult(false);
     }
   };
 
@@ -107,53 +117,6 @@ export default function HigherRunner() {
 
           {/* フォーム */}
           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            {/* 大会名 */}
-            <div>
-              <label style={{ display: "block", fontSize: "14px", fontWeight: "bold", color: "#333", marginBottom: "8px" }}>
-                🏁 大会名
-              </label>
-              <input
-                type="text"
-                placeholder="例：東京マラソン2026"
-                value={formData.raceName}
-                onChange={(e) => setFormData({ ...formData, raceName: e.target.value })}
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  fontSize: "16px",
-                  border: "2px solid #e0e0e0",
-                  borderRadius: "10px",
-                  outline: "none",
-                  transition: "all 0.3s",
-                }}
-                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
-                onBlur={(e) => (e.target.style.borderColor = "#e0e0e0")}
-              />
-            </div>
-
-            {/* 開催日 */}
-            <div>
-              <label style={{ display: "block", fontSize: "14px", fontWeight: "bold", color: "#333", marginBottom: "8px" }}>
-                📅 開催日
-              </label>
-              <input
-                type="date"
-                value={formData.raceDate}
-                onChange={(e) => setFormData({ ...formData, raceDate: e.target.value })}
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  fontSize: "16px",
-                  border: "2px solid #e0e0e0",
-                  borderRadius: "10px",
-                  outline: "none",
-                  transition: "all 0.3s",
-                }}
-                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
-                onBlur={(e) => (e.target.style.borderColor = "#e0e0e0")}
-              />
-            </div>
-
             {/* レベル選択 */}
             <div>
               <label style={{ display: "block", fontSize: "14px", fontWeight: "bold", color: "#333", marginBottom: "12px" }}>
@@ -265,6 +228,9 @@ export default function HigherRunner() {
           {/* フッター */}
           <div style={{ marginTop: "30px", textAlign: "center", fontSize: "12px", color: "#999" }}>
             <p>初フルマラソンチャレンジャーを応援します</p>
+            <p style={{ marginTop: "8px", fontSize: "11px", color: "#bbb" }}>
+              ※ 将来的に大会別カスタマイズ機能を搭載予定です
+            </p>
           </div>
         </div>
       </div>
@@ -276,9 +242,18 @@ export default function HigherRunner() {
   // ─────────────────────────────────────────
   if (gamePhase === "playing") {
     const eventData = events[currentEventId];
-    const levelData = eventData.levels[formData.level];
-    const chosen = levelData.choices.find((c) => c.id === selectedChoice);
+    const isBreak = eventData.type === "break";
+    const levelData = isBreak ? null : eventData.levels[formData.level];
+    const chosen = levelData ? levelData.choices.find((c) => c.id === selectedChoice) : null;
     const resultColor = chosen ? COLORS[chosen.result.outcome] : null;
+
+    const nextButtonLabel = (() => {
+      const nextIndex = EVENT_ORDER.indexOf(currentEventId) + 1;
+      const nextId = EVENT_ORDER[nextIndex];
+      return nextId && events[nextId]
+        ? `次のイベントへ → ${nextId} 🏃`
+        : "エンディングへ 🎉";
+    })();
 
     return (
       <div style={{
@@ -290,9 +265,9 @@ export default function HigherRunner() {
         alignItems: "flex-start",
       }}>
         <div style={{
-          maxWidth: "600px",
+          maxWidth: "500px",
           width: "100%",
-          marginTop: "40px",
+          margin: "40px auto 0",
           marginBottom: "40px",
         }}>
 
@@ -330,6 +305,46 @@ export default function HigherRunner() {
             boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
           }}>
 
+            {/* 前後移動ボタン */}
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
+              {EVENT_ORDER.indexOf(currentEventId) > 0 ? (
+                <button
+                  onClick={handlePrevEvent}
+                  style={{
+                    background: "#e9ecef",
+                    border: "none",
+                    borderRadius: "8px",
+                    color: "#555",
+                    padding: "5px 12px",
+                    fontSize: "12px",
+                    cursor: "pointer",
+                  }}
+                >
+                  ← 前へ
+                </button>
+              ) : (
+                <span />
+              )}
+              {EVENT_ORDER.indexOf(currentEventId) < EVENT_ORDER.length - 1 ? (
+                <button
+                  onClick={handleNextEvent}
+                  style={{
+                    background: "#e9ecef",
+                    border: "none",
+                    borderRadius: "8px",
+                    color: "#555",
+                    padding: "5px 12px",
+                    fontSize: "12px",
+                    cursor: "pointer",
+                  }}
+                >
+                  次へ →
+                </button>
+              ) : (
+                <span />
+              )}
+            </div>
+
             {/* イベントタイトル */}
             <div style={{ marginBottom: "20px" }}>
               <span style={{
@@ -350,168 +365,22 @@ export default function HigherRunner() {
               </h2>
             </div>
 
-            {/* 状況説明 */}
-            <div style={{
-              background: "#f8f9ff",
-              borderLeft: "4px solid #667eea",
-              borderRadius: "0 10px 10px 0",
-              padding: "16px",
-              marginBottom: "24px",
-              fontSize: "15px",
-              color: "#444",
-              lineHeight: "1.7",
-              whiteSpace: "pre-line",
-            }}>
-              {levelData.description}
-            </div>
-
-            {/* 選択肢 */}
-            <div style={{ marginBottom: "20px" }}>
-              <p style={{ fontSize: "13px", fontWeight: "bold", color: "#888", marginBottom: "12px" }}>
-                どうする？
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                {levelData.choices.map((choice) => {
-                  const isSelected = selectedChoice === choice.id;
-                  const isDecided = showResult;
-                  const isWinner = isDecided && isSelected;
-
-                  let borderColor = "#e0e0e0";
-                  let bgColor = "white";
-                  if (isSelected && !isDecided) { borderColor = "#667eea"; bgColor = "rgba(102,126,234,0.08)"; }
-                  if (isWinner) { borderColor = resultColor.border; bgColor = resultColor.bg; }
-                  if (isDecided && !isSelected) { bgColor = "#f5f5f5"; }
-
-                  return (
-                    <button
-                      key={choice.id}
-                      onClick={() => handleChoiceSelect(choice.id)}
-                      disabled={isDecided}
-                      style={{
-                        padding: "14px 16px",
-                        border: `2px solid ${borderColor}`,
-                        borderRadius: "12px",
-                        background: bgColor,
-                        cursor: isDecided ? "default" : "pointer",
-                        textAlign: "left",
-                        fontSize: "15px",
-                        color: isDecided && !isSelected ? "#aaa" : "#333",
-                        transition: "all 0.2s",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px",
-                      }}
-                    >
-                      <span style={{
-                        width: "28px",
-                        height: "28px",
-                        borderRadius: "50%",
-                        background: isSelected ? "#667eea" : "#eee",
-                        color: isSelected ? "white" : "#888",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "13px",
-                        fontWeight: "bold",
-                        flexShrink: 0,
-                      }}>
-                        {choice.id}
-                      </span>
-                      {choice.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* 決定ボタン */}
-            {!showResult && (
-              <button
-                onClick={handleDecide}
-                disabled={!selectedChoice}
-                style={{
-                  width: "100%",
-                  padding: "14px",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  color: "white",
-                  background: selectedChoice
-                    ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                    : "#ccc",
-                  border: "none",
-                  borderRadius: "12px",
-                  cursor: selectedChoice ? "pointer" : "not-allowed",
-                  transition: "all 0.3s",
-                  marginBottom: "8px",
-                }}
-              >
-                これで決定！
-              </button>
-            )}
-
-            {/* 結果表示 */}
-            {showResult && chosen && (
-              <div style={{ marginTop: "8px" }}>
-                {/* アウトカムラベル */}
+            {/* ─── break イベント（豆知識タイム） ─── */}
+            {isBreak && (
+              <>
                 <div style={{
-                  display: "inline-block",
-                  background: resultColor.bg,
-                  border: `2px solid ${resultColor.border}`,
-                  color: resultColor.text,
-                  padding: "6px 16px",
-                  borderRadius: "20px",
-                  fontWeight: "bold",
-                  fontSize: "14px",
-                  marginBottom: "14px",
-                }}>
-                  {OUTCOME_LABEL[chosen.result.outcome]}
-                </div>
-
-                {/* 結果テキスト */}
-                <div style={{
-                  background: resultColor.bg,
-                  border: `1px solid ${resultColor.border}`,
-                  borderRadius: "12px",
-                  padding: "16px",
-                  marginBottom: "14px",
-                  fontSize: "15px",
-                  color: "#333",
-                  lineHeight: "1.7",
-                  whiteSpace: "pre-line",
-                }}>
-                  {chosen.result.text}
-                </div>
-
-                {/* Tips */}
-                <div style={{
-                  background: "#fffbea",
-                  border: "1px solid #f0c040",
-                  borderRadius: "12px",
-                  padding: "14px 16px",
-                  marginBottom: "14px",
-                  fontSize: "13px",
-                  color: "#6b5900",
-                  lineHeight: "1.6",
-                }}>
-                  💡 <strong>Tips：</strong>{chosen.tip}
-                </div>
-
-                {/* 教育コンテンツ */}
-                <div style={{
-                  background: "#f0f4ff",
-                  border: "1px solid #c5d0f5",
-                  borderRadius: "12px",
-                  padding: "16px",
+                  background: "#f8f9ff",
+                  borderLeft: "4px solid #667eea",
+                  borderRadius: "0 10px 10px 0",
+                  padding: "20px",
                   marginBottom: "24px",
-                  fontSize: "13px",
-                  color: "#334",
+                  fontSize: "15px",
+                  color: "#444",
                   lineHeight: "1.8",
                   whiteSpace: "pre-line",
                 }}>
-                  {levelData.educationContent}
+                  {eventData.content}
                 </div>
-
-                {/* 次へボタン */}
                 <button
                   onClick={handleNextEvent}
                   style={{
@@ -527,16 +396,330 @@ export default function HigherRunner() {
                     boxShadow: "0 4px 15px rgba(102,126,234,0.4)",
                   }}
                 >
-                  {(() => {
-                    const nextIndex = EVENT_ORDER.indexOf(currentEventId) + 1;
-                    const nextId = EVENT_ORDER[nextIndex];
-                    return nextId && events[nextId]
-                      ? `次のイベントへ → ${nextId} 🏃`
-                      : `次のイベントへ → F${nextIndex + 1} Coming Soon 🚧`;
-                  })()}
+                  {nextButtonLabel}
                 </button>
-              </div>
+              </>
             )}
+
+            {/* ─── 通常イベント（選択肢あり） ─── */}
+            {!isBreak && (
+              <>
+                {/* 状況説明 */}
+                <div style={{
+                  background: "#f8f9ff",
+                  borderLeft: "4px solid #667eea",
+                  borderRadius: "0 10px 10px 0",
+                  padding: "16px",
+                  marginBottom: "24px",
+                  fontSize: "15px",
+                  color: "#444",
+                  lineHeight: "1.7",
+                  whiteSpace: "pre-line",
+                }}>
+                  {levelData.description}
+                </div>
+
+                {/* 選択肢 */}
+                <div style={{ marginBottom: "20px" }}>
+                  <p style={{ fontSize: "13px", fontWeight: "bold", color: "#888", marginBottom: "12px" }}>
+                    どうする？
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {levelData.choices.map((choice) => {
+                      const isSelected = selectedChoice === choice.id;
+                      const isDecided = showResult;
+                      const isWinner = isDecided && isSelected;
+
+                      let borderColor = "#e0e0e0";
+                      let bgColor = "white";
+                      if (isSelected && !isDecided) { borderColor = "#667eea"; bgColor = "rgba(102,126,234,0.08)"; }
+                      if (isWinner) { borderColor = resultColor.border; bgColor = resultColor.bg; }
+                      if (isDecided && !isSelected) { bgColor = "#f5f5f5"; }
+
+                      return (
+                        <button
+                          key={choice.id}
+                          onClick={() => handleChoiceSelect(choice.id)}
+                          disabled={isDecided}
+                          style={{
+                            padding: "14px 16px",
+                            border: `2px solid ${borderColor}`,
+                            borderRadius: "12px",
+                            background: bgColor,
+                            cursor: isDecided ? "default" : "pointer",
+                            textAlign: "left",
+                            fontSize: "15px",
+                            color: isDecided && !isSelected ? "#aaa" : "#333",
+                            transition: "all 0.2s",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "12px",
+                          }}
+                        >
+                          <span style={{
+                            width: "28px",
+                            height: "28px",
+                            borderRadius: "50%",
+                            background: isSelected ? "#667eea" : "#eee",
+                            color: isSelected ? "white" : "#888",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "13px",
+                            fontWeight: "bold",
+                            flexShrink: 0,
+                          }}>
+                            {choice.id}
+                          </span>
+                          {choice.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 決定ボタン */}
+                {!showResult && (
+                  <button
+                    onClick={handleDecide}
+                    disabled={!selectedChoice}
+                    style={{
+                      width: "100%",
+                      padding: "14px",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      color: "white",
+                      background: selectedChoice
+                        ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                        : "#ccc",
+                      border: "none",
+                      borderRadius: "12px",
+                      cursor: selectedChoice ? "pointer" : "not-allowed",
+                      transition: "all 0.3s",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    これで決定！
+                  </button>
+                )}
+
+                {/* 結果表示 */}
+                {showResult && chosen && (
+                  <div style={{ marginTop: "8px" }}>
+                    {/* アウトカムラベル */}
+                    <div style={{
+                      display: "inline-block",
+                      background: resultColor.bg,
+                      border: `2px solid ${resultColor.border}`,
+                      color: resultColor.text,
+                      padding: "6px 16px",
+                      borderRadius: "20px",
+                      fontWeight: "bold",
+                      fontSize: "14px",
+                      marginBottom: "14px",
+                    }}>
+                      {OUTCOME_LABEL[chosen.result.outcome]}
+                    </div>
+
+                    {/* 結果テキスト */}
+                    <div style={{
+                      background: resultColor.bg,
+                      border: `1px solid ${resultColor.border}`,
+                      borderRadius: "12px",
+                      padding: "16px",
+                      marginBottom: "14px",
+                      fontSize: "15px",
+                      color: "#333",
+                      lineHeight: "1.7",
+                      whiteSpace: "pre-line",
+                    }}>
+                      {chosen.result.text}
+                    </div>
+
+                    {/* Tips */}
+                    <div style={{
+                      background: "#fffbea",
+                      border: "1px solid #f0c040",
+                      borderRadius: "12px",
+                      padding: "14px 16px",
+                      marginBottom: "14px",
+                      fontSize: "13px",
+                      color: "#6b5900",
+                      lineHeight: "1.6",
+                    }}>
+                      💡 <strong>Tips：</strong>{chosen.tip}
+                    </div>
+
+                    {/* 教育コンテンツ */}
+                    <div style={{
+                      background: "#f0f4ff",
+                      border: "1px solid #c5d0f5",
+                      borderRadius: "12px",
+                      padding: "16px",
+                      marginBottom: "24px",
+                      fontSize: "13px",
+                      color: "#334",
+                      lineHeight: "1.8",
+                      whiteSpace: "pre-line",
+                    }}>
+                      {levelData.educationContent}
+                    </div>
+
+                    {/* 次へボタン */}
+                    <button
+                      onClick={handleNextEvent}
+                      style={{
+                        width: "100%",
+                        padding: "14px",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                        color: "white",
+                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                        border: "none",
+                        borderRadius: "12px",
+                        cursor: "pointer",
+                        boxShadow: "0 4px 15px rgba(102,126,234,0.4)",
+                      }}
+                    >
+                      {nextButtonLabel}
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─────────────────────────────────────────
+  // エンディング画面（finished フェーズ）
+  // ─────────────────────────────────────────
+  if (gamePhase === "finished") {
+    return (
+      <div style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px",
+      }}>
+        <div style={{
+          maxWidth: "500px",
+          width: "100%",
+          background: "rgba(255,255,255,0.97)",
+          borderRadius: "20px",
+          padding: "36px 28px",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+          textAlign: "center",
+        }}>
+          {/* タイトル */}
+          <div style={{ marginBottom: "28px" }}>
+            <div style={{ fontSize: "40px", marginBottom: "12px" }}>🏃</div>
+            <h2 style={{ fontSize: "22px", fontWeight: "bold", color: "#333", margin: "0 0 8px" }}>
+              お疲れさまでした！
+            </h2>
+            <p style={{ fontSize: "15px", color: "#555", lineHeight: "1.8", margin: 0 }}>
+              Higher Runner を<br />
+              最後まで体験いただき<br />
+              ありがとうございました。
+            </p>
+            <p style={{ fontSize: "14px", color: "#777", lineHeight: "1.7", marginTop: "14px" }}>
+              フルマラソン完走への道、<br />
+              少しでもイメージできましたか？
+            </p>
+          </div>
+
+          <hr style={{ border: "none", borderTop: "1px solid #eee", margin: "0 0 28px" }} />
+
+          {/* 今後の予定 */}
+          <div style={{ textAlign: "left", marginBottom: "28px" }}>
+            <p style={{
+              fontSize: "13px",
+              fontWeight: "bold",
+              color: "#888",
+              letterSpacing: "0.5px",
+              marginBottom: "16px",
+              textAlign: "center",
+            }}>
+              📍 今後の予定
+            </p>
+            {[
+              { icon: "🌤️", title: "天気予報連携", desc: "大会当日の天気に応じた\nカスタムアドバイス" },
+              { icon: "🗺️", title: "大会別コース情報", desc: "各マラソン大会の特性に\n合わせた攻略法" },
+              { icon: "💬", title: "ランナーの声", desc: "実際の経験談を反映した\nリアルなTips" },
+            ].map(({ icon, title, desc }) => (
+              <div key={title} style={{
+                display: "flex",
+                gap: "14px",
+                marginBottom: "16px",
+                background: "#f8f9ff",
+                borderRadius: "12px",
+                padding: "14px 16px",
+              }}>
+                <span style={{ fontSize: "22px", lineHeight: 1 }}>{icon}</span>
+                <div>
+                  <div style={{ fontWeight: "bold", fontSize: "14px", color: "#333", marginBottom: "4px" }}>{title}</div>
+                  <div style={{ fontSize: "13px", color: "#666", lineHeight: "1.6", whiteSpace: "pre-line" }}>{desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <hr style={{ border: "none", borderTop: "1px solid #eee", margin: "0 0 24px" }} />
+
+          {/* キャッチコピー */}
+          <p style={{ fontSize: "14px", color: "#888", fontStyle: "italic", marginBottom: "24px" }}>
+            🎵 Bring me a higher run...
+          </p>
+
+          {/* ボタン */}
+          <div style={{ display: "flex", gap: "12px", flexDirection: "column" }}>
+            <button
+              onClick={() => {
+                setGamePhase("input");
+                setCurrentEventId("F1");
+                setSelectedChoice(null);
+                setShowResult(false);
+              }}
+              style={{
+                width: "100%",
+                padding: "14px",
+                fontSize: "15px",
+                fontWeight: "bold",
+                color: "white",
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                border: "none",
+                borderRadius: "12px",
+                cursor: "pointer",
+                boxShadow: "0 4px 15px rgba(102,126,234,0.4)",
+              }}
+            >
+              最初からやり直す
+            </button>
+            <a
+              href="https://github.com/MonoMonoMonozu/higher-runner"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "block",
+                width: "100%",
+                padding: "14px",
+                fontSize: "15px",
+                fontWeight: "bold",
+                color: "#555",
+                background: "#f0f0f0",
+                border: "none",
+                borderRadius: "12px",
+                cursor: "pointer",
+                textDecoration: "none",
+                boxSizing: "border-box",
+              }}
+            >
+              GitHub で見る
+            </a>
           </div>
         </div>
       </div>
