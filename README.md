@@ -1,16 +1,138 @@
-# React + Vite
+# 🏃 Higher Runner
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> "Bring me a higher run..."
 
-Currently, two official plugins are available:
+フルマラソン完走を目指すあなたのための、ゲーム形式学習アプリ
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+[![Demo](https://img.shields.io/badge/Demo-Live-success)](https://monomonomonozu.github.io/higher-runner/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🎯 コンセプト
 
-## Expanding the ESLint configuration
+**Higher Runner** は、初フルマラソンチャレンジャーを主なターゲットとした教育型マラソン攻略アプリです。
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+「クイズは解説を受け入れるための地ならし」というコンセプトのもと、**正解不正解ではなく「気づき」と「学び」** を重視しています。
+
+---
+
+## ✨ 主な機能
+
+### 📊 3段階レベル分岐
+- 🔰 **初心者**: 基礎知識重視、よくあるワナを強調
+- 🏃 **完走経験者**: 実践的なテクニック、効率化
+- ⚡ **タイム狙い**: 戦略的アプローチ、ペース管理
+
+### 🎮 26のチェックポイント
+前日準備（F1）からゴール後のケア（F26）まで、フルマラソンの重要ポイントを網羅
+
+### 💡 教育コンテンツ
+各イベント後に表示される3層構造：
+1. **結果表示** - 選択の直接的な影響
+2. **Tips** - 実践的アドバイス
+3. **知識メモ** - 理論や背景知識
+
+### 🎵 箸休めコンテンツ
+15km地点とゴール通過時に、豆知識タイムを挿入。単調さを回避し、リズムに変化をつけます。
+
+### 🧭 前後移動ナビゲーション
+選択せずに自由にイベント間を行き来できる機能。復習や先読みが可能です。
+
+---
+
+## 🚀 デモ
+
+**👉 [今すぐ体験する](https://monomonomonozu.github.io/higher-runner/)**
+
+スマホ・PCどちらでも快適に動作します。
+
+---
+
+## 🛠️ 技術スタック
+
+- **フロントエンド**: React + Vite
+- **スタイリング**: インラインCSS
+- **デプロイ**: GitHub Pages
+- **データ管理**: JSON
+
+---
+
+## 🎨 デザイン
+
+- **カラー**: 紫のグラデーション（#667eea → #764ba2）
+- **コンセプト**: 80年代AOR/ソウルミュージックの雰囲気
+- **レスポンシブ**: PC（中央固定500px）/ スマホ（画面幅いっぱい）
+
+---
+
+## 📦 ローカル開発
+
+```bash
+# リポジトリをクローン
+git clone https://github.com/MonoMonoMonozu/higher-runner.git
+cd higher-runner
+
+# 依存関係をインストール
+npm install
+
+# 開発サーバーを起動
+npm run dev
+
+# ビルド
+npm run build
+```
+
+---
+
+## 🔮 今後の展開
+
+### Phase 2（検討中）
+- 🌤️ 天気予報API連携
+- 🗺️ 大会別コース情報
+- 💬 実際のランナーの声を反映
+
+### Phase 3（構想）
+- 🎓 汎用学習アプリフレームとしての展開
+- 📚 他分野への応用（RPA、SharePoint、業務改善など）
+- 🤖 AI連携による動的コンテンツ生成
+
+---
+
+## 👥 ターゲットユーザー
+
+- **主要**: 初フルマラソンチャレンジャー
+- **副次**: 経験者の基本確認、タイム狙いの戦略立案
+
+---
+
+## 💡 価値提案
+
+1. **気づきの場** - 知らなかったチェックポイントの発見
+2. **再確認の場** - 経験者も基本を見直せる
+3. **判断力の育成** - なぜその選択が良い/悪いのかを理解
+4. **完走への自信** - 事前シミュレーションで不安を軽減
+
+---
+
+## 📄 ライセンス
+
+MIT License
+
+---
+
+## 👤 開発者
+
+**MASAKI**（セナリーアカデミー）
+
+開発協力: Claude (Anthropic)
+
+---
+
+## 🙏 謝辞
+
+このプロジェクトは、たかやマラソンさんのYouTubeチャンネルから多くのインスピレーションを得ています。
+
+---
+
+**🎵 "Bring me a higher run..." 🏃**
