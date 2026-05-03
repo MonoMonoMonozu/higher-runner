@@ -123,8 +123,7 @@ MIT License
 
 ## 👤 開発者
 
-**MASAKI**（セナリーアカデミー）
-
+**MASAKI**
 開発協力: Claude (Anthropic)
 
 ---
