@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { events } from "./eventsData";
+import SplashScreen from "./components/SplashScreen";
 
 const COLORS = {
   good: { bg: "#d4edda", border: "#28a745", text: "#155724" },
@@ -14,6 +15,7 @@ const OUTCOME_LABEL = {
 };
 
 export default function HigherRunner() {
+  const [splashDone, setSplashDone] = useState(false);
   const [gamePhase, setGamePhase] = useState("input"); // input, playing, finished
   const [formData, setFormData] = useState({
     raceName: "",
@@ -74,6 +76,10 @@ export default function HigherRunner() {
       setShowResult(false);
     }
   };
+
+  if (!splashDone) {
+    return <SplashScreen onFinish={() => setSplashDone(true)} />;
+  }
 
   // ─────────────────────────────────────────
   // 入力フェーズ
